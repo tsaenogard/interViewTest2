@@ -85,19 +85,40 @@ class ViewController: UIViewController {
         }
         
         let url = "http://104.199.124.23/bb/iapi/R1.php"
-        var postString = ""
-        postString += "acc=\(nameTextField.text!)"
-        postString += "&"
-        postString += "pwd=\(passTextField.text!)"
-        postString += "&"
-        postString += "Key=login"
+        var postString1 = ""
+        postString1 += "acc=\(nameTextField.text!)"
+        postString1 += "&pwd=\(passTextField.text!)"
+        postString1 += "&Key=login"
+        print(postString1)
         
-        DataManager().getToken(urlString: url, parameters: postString, method: "POST") { (data) in
+        var postString2 = [
+            "acc": "\(nameTextField.text!)",
+            "pwd": "\(passTextField.text!)",
+            "Key": "login"
+        ]
+        
+        DataManager().getToken(urlString: url, parameters: postString1, method: "POST") { (data) in
             DispatchQueue.main.async {
-                let str = String(data: data, encoding: .utf8)
-                print(str as Any)
+                print("data = \(data)")
+                do {
+                    var json = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.mutableContainers) as? NSDictionary
+                    
+                    
+                    if let parseJSON = json {
+                        print("parseJSON = \(parseJSON)")
+                        var token = parseJSON["Key"] as? String
+                        print("token = \(token)")
+                    }
+                } catch let error {
+                    print(error as Any)
+                }
+
             }
         }
+        DataManager().getToken2(urlString: url, parameters: postString2, method: "POST") { (data) in
+            print("success")
+        }
     }
+    
 }
 
