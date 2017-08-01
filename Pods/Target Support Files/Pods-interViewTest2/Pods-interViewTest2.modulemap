@@ -1,0 +1,6 @@
+framework module Pods_interViewTest2 {
+  umbrella header "Pods-interViewTest2-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -18,7 +18,17 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        
+        initUI()
+    }
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        setUI()
+        nameTextField.text = "user01"
+        passTextField.text = "1a2b3cd4"
+    }
+    
+    private func initUI() {
         self.titleLabel = UILabel()
         self.titleLabel.text = "登入系統"
         self.titleLabel.textColor = UIColor.darkGray
@@ -43,6 +53,7 @@ class ViewController: UIViewController {
         self.passTextField.font = UIFont.systemFont(ofSize: 24)
         self.passTextField.textAlignment = NSTextAlignment.left
         self.passTextField.borderStyle = .roundedRect
+        self.passTextField.isSecureTextEntry = true
         self.passTextField.clearButtonMode = .whileEditing
         self.passTextField.keyboardType = .default
         self.passTextField.textColor = UIColor.black
@@ -52,16 +63,13 @@ class ViewController: UIViewController {
         self.chickBtn.setTitle("login", for: .normal)
         self.chickBtn.addTarget(self, action: #selector(onBtnAction(_:)), for: .touchUpInside)
         self.view.addSubview(self.chickBtn)
-        
-        
     }
     
-    
-    override func viewWillAppear(_ animated: Bool) {
+    private func setUI() {
         let gap: CGFloat = 20
         
         self.titleLabel.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 45)
-        self.titleLabel.center = CGPoint(x: self.view.bounds.midX, y: self.titleLabel.frame.height / 2 + gap)
+        self.titleLabel.center = CGPoint(x: self.view.bounds.midX, y: self.titleLabel.frame.height / 2 + (self.navigationController?.navigationBar.frame.height)! + UIApplication.shared.statusBarFrame.height + gap)
         
         self.nameTextField.frame = CGRect(x: 0, y: 0, width: 200, height: 30)
         self.nameTextField.center = CGPoint(x: self.view.bounds.midX, y: self.titleLabel.frame.maxY + gap + self.nameTextField.frame.height / 2)
@@ -71,12 +79,14 @@ class ViewController: UIViewController {
         
         self.chickBtn.frame = CGRect(x: 0, y: 0, width: 60, height: 30)
         self.chickBtn.center = CGPoint(x: self.view.bounds.midX, y: self.passTextField.frame.maxY + gap + self.chickBtn.frame.height / 2)
-        
     }
+    
+    //MARK: -selector
     
     func onBtnAction(_ sender: UIButton)  {
         
         if nameTextField.text! == "" || passTextField.text! == "" {
+            //確認有無填寫
             let alertController = UIAlertController(title: "錯誤", message: "未填寫完全", preferredStyle: .alert)
             let alertAction1 = UIAlertAction(title: "確定", style: .default, handler: nil)
             alertController.addAction(alertAction1)
@@ -84,40 +94,12 @@ class ViewController: UIViewController {
             return
         }
         
-        let url = "http://104.199.124.23/bb/iapi/R1.php"
-        var postString1 = ""
-        postString1 += "acc=\(nameTextField.text!)"
-        postString1 += "&pwd=\(passTextField.text!)"
-        postString1 += "&Key=login"
-        print(postString1)
+        let destinVC = SelectTableViewController()
+        destinVC.userName = nameTextField.text!
+        destinVC.passWord = passTextField.text!
+        self.navigationController?.pushViewController(destinVC, animated: true)
+        //將帳密傳至SelectTableViewController
         
-        var postString2 = [
-            "acc": "\(nameTextField.text!)",
-            "pwd": "\(passTextField.text!)",
-            "Key": "login"
-        ]
-        
-        DataManager().getToken(urlString: url, parameters: postString1, method: "POST") { (data) in
-            DispatchQueue.main.async {
-                print("data = \(data)")
-                do {
-                    var json = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.mutableContainers) as? NSDictionary
-                    
-                    
-                    if let parseJSON = json {
-                        print("parseJSON = \(parseJSON)")
-                        var token = parseJSON["Key"] as? String
-                        print("token = \(token)")
-                    }
-                } catch let error {
-                    print(error as Any)
-                }
-
-            }
-        }
-        DataManager().getToken2(urlString: url, parameters: postString2, method: "POST") { (data) in
-            print("success")
-        }
     }
     
 }
